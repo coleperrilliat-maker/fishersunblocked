@@ -1,29 +1,33 @@
 export default {
   async fetch(request) {
-    const targetUrl = "https://now.gg";
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Educational Portal</title>
+          <style>
+            body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
+            #game-container { width: 100%; height: 100%; }
+          </style>
+          <!-- 1. Load the official now.gg SDK -->
+          <script type="text/javascript" src="https://cdn.now.gg/external/sdk/ifp-sdk-1.2.0.min.js"></script>
+        </head>
+        <body>
+          <div id="game-container"></div>
 
-    // 1. Fetch the actual content from now.gg
-    let response = await fetch(targetUrl, {
-      headers: {
-        "User-Agent": request.headers.get("User-Agent"),
-        "Accept": request.headers.get("Accept")
-      }
-    });
-
-    // 2. Clone the response so we can modify the headers
-    let newHeaders = new Headers(response.headers);
-    
-    // 3. Delete the headers that block your site from showing the game
-    newHeaders.delete("X-Frame-Options");
-    newHeaders.delete("Content-Security-Policy");
-    
-    // 4. Tell the browser it's okay to show this content on your domain
-    newHeaders.set("Access-Control-Allow-Origin", "*");
-
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: newHeaders
-    });
+          <script>
+            // 2. Initialize the game inside your own container
+            // Use the public App ID for Roblox
+            NowIfp.init({
+              clientId: "external_embed", 
+              appId: "5349", 
+              iframeParentElement: document.getElementById("game-container"),
+              isNowLoginEnabled: true
+            });
+          </script>
+        </body>
+      </html>
+    `;
+    return new Response(html, { headers: { "content-type": "text/html;charset=UTF-8" } });
   }
 };
