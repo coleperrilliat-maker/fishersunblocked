@@ -1,38 +1,27 @@
 export default {
   async fetch(request) {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Roblox | FishersUnblocked</title>
-          <style>
-            body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; }
-            .container { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
-            /* This 'zooms' the view to hide headers and borders */
-            iframe {
-              position: absolute;
-              top: -45px; 
-              left: 0;
-              width: 100%;
-              height: calc(100% + 45px);
-              border: none;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <!-- Using the direct app link for better browser compatibility -->
-            <iframe 
-              src="https://now.gg" 
-              sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-presentation"
-              allowfullscreen>
-            </iframe>
-          </div>
-        </body>
-      </html>
-    `;
-    return new Response(html, {
-      headers: { "content-type": "text/html;charset=UTF-8" },
+    const targetUrl = "https://universityequality.com";
+    
+    // 1. Fetch the actual game page
+    let response = await fetch(targetUrl, {
+      headers: request.headers
+    });
+
+    // 2. Make the response editable
+    let newHeaders = new Headers(response.headers);
+    
+    // 3. REMOVE the security headers that cause the "Refused to Connect" error
+    newHeaders.delete("X-Frame-Options");
+    newHeaders.delete("Content-Security-Policy");
+    
+    // 4. Add headers to allow it to be framed anywhere
+    newHeaders.set("Access-Control-Allow-Origin", "*");
+
+    // 5. Return the "cleaned" page to your browser
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: newHeaders
     });
   }
 };
